@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setToken } from "../redux/slices/authSlice";
-import { AppDispatch } from "../redux/store";
+import { setToken } from "../redux/slices/authSlice"; 
+import { AppDispatch } from "../redux/store"; 
 import axios from "axios";
-import { Mail, Lock, LogIn, CheckCircle } from "lucide-react";
+import { Mail, Lock, LogIn, CheckCircle, Eye, EyeOff } from "lucide-react"; 
 
 export default function AuthForm() {
     const [mode, setMode] = useState<"login" | "signup">("login");
@@ -15,8 +15,8 @@ export default function AuthForm() {
     const [loading, setLoading] = useState(false);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
     
-    // --- NEW: State for the "Remember Me" checkbox ---
     const [rememberMe, setRememberMe] = useState(false);
+    const [showPass, setShowPass] = useState(false); 
     
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
@@ -29,8 +29,11 @@ export default function AuthForm() {
         const endpoint = mode === "login" ? "/api/login" : "/api/signup";
 
         try {
-            // Pass the `rememberMe` state in the request body for login
-            const payload = mode === 'login' ? { email, password } : { email, password };
+           
+            const payload = mode === 'login' 
+                ? { email, password } 
+                : { email, password };
+                
             const response = await axios.post(endpoint, payload);
 
             if (mode === "login") {
@@ -58,7 +61,6 @@ export default function AuthForm() {
                     onSubmit={handleSubmit}
                     className="p-8 space-y-6 bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50"
                 >
-                    {/* ... Header remains the same ... */}
                     <div className="text-center">
                         <h1 className="text-3xl font-bold text-white">
                             {mode === "login" ? "Welcome Back" : "Create Account"}
@@ -77,17 +79,31 @@ export default function AuthForm() {
                         </p>
                     </div>
 
-                    {/* ... Email and Password inputs remain the same ... */}
                     <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                         <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="email@example.com" className="w-full p-3 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white" />
                     </div>
                      <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="w-full p-3 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white" />
+                        <input 
+                            id="password" 
+                            type={showPass ? 'text' : 'password'}
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            required 
+                            placeholder="Password" 
+                            className="w-full p-3 pl-10 pr-10 bg-gray-800 border border-gray-700 rounded-lg text-white" 
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPass(!showPass)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        >
+                            {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
                     </div>
 
-                    {/* --- NEW: Remember Me Checkbox (only shows in login mode) --- */}
+                    
                     {mode === 'login' && (
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
@@ -117,8 +133,29 @@ export default function AuthForm() {
                     </button>
                 </form>
             </div>
-            {/* ... Success Dialog remains the same ... */}
+            
+            {/* --- SIGNUP SUCCESS DIALOG --- */}
+            {showSuccessDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+                    <div className="bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-sm text-center border border-gray-700">
+                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-900/50 mb-4">
+                            <CheckCircle className="h-6 w-6 text-green-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white">Signup Successful!</h3>
+                        <p className="text-sm text-gray-400 mt-2">
+                            Your account has been created. Please log in to continue.
+                        </p>
+                        <div className="mt-6">
+                            <button
+                                onClick={handleDialogClose}
+                                className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                            >
+                                Proceed to Login
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
-

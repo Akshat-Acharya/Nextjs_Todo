@@ -17,13 +17,11 @@ export function getUserIdFromToken(token: string | undefined): number | null {
 export async function getTasksData() {
     try {
         const response = await axios.get('/api/tasks');
-        // Ensure the response data is an array before returning
+       
         return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
-        // The API call failed (e.g., 401 Unauthorized error)
         console.error("API Error: Failed to fetch tasks.", error);
         
-        // Return an empty array to prevent the application from crashing.
         return []; 
     }
 }

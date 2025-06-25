@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
 
-    if (!email || !password || password.length < 6) {
+    if (!email || !password ) {
       return NextResponse.json({ error: 'Email and password (min 6 chars) required' }, { status: 400 });
     }
 
@@ -17,7 +17,6 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // FIX: The 'user' variable was unused, so we can just await the creation directly.
     await prisma.user.create({
       data: { email, password: hashedPassword },
     });

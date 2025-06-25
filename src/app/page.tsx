@@ -28,12 +28,11 @@ export default function HomePage() {
       loadTasks();
     }
   }, [isAuthenticated, dispatch]);
-
+1
   return ( 
     <div className="w-full min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
       <div className="w-full max-w-3xl mx-auto">
         {isAuthenticated ? (
-          // --- If Logged In, Show the Task Dashboard ---
           <div className="animate-fadeIn">
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
               <div>
@@ -49,10 +48,7 @@ export default function HomePage() {
             </main>
           </div>
         ) : (
-          // --- If Not Logged In, Show the Auth Form ---
-          
-          // --- THE FIX ---
-          // This container now uses flexbox to center the AuthForm horizontally.
+         
           <div className="w-full flex justify-center animate-fadeIn">
             <AuthForm />
           </div>

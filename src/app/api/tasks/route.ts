@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'; 
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
@@ -6,13 +6,14 @@ import jwt from 'jsonwebtoken';
 function getUserIdFromToken(token: string | undefined): number | null {
     if (!token) return null;
     try {
-        // FIX: The 'decoded' variable was unused, so we just return the value directly.
-        return (jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }).userId;
-    } catch { // FIX: Removed unused 'error' variable
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
+        return decoded.userId;
+    } catch (error) {
         return null;
     }
 }
-export async function GET() {
+
+export async function GET(request: NextRequest) { 
     const token = (await cookies()).get('token')?.value;
     const userId = getUserIdFromToken(token);
     
@@ -20,10 +21,29 @@ export async function GET() {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
+    const search = request.nextUrl.searchParams.get('search') || '';
+
     const tasks = await prisma.task.findMany({
-        where: { authorId: userId },
-         orderBy: { dueDate: 'asc' },
+        where: {
+            authorId: userId,
+            OR: [
+                {
+                    task: {
+                        contains: search,
+                        mode: 'insensitive',
+                    },
+                },
+                {
+                    description: {
+                        contains: search,
+                        mode: 'insensitive',
+                    },
+                },
+            ],
+        },
+        orderBy: { createdAt: 'desc' },
     });
+
     return NextResponse.json(tasks);
 }
 

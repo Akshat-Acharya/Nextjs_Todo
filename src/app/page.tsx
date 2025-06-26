@@ -5,14 +5,13 @@ import { useEffect } from 'react';
 import { setTasks } from '../redux/slices/taskSlice';
 import { getTasksData } from '../lib/auth'; 
 
+// Import the components
 import AuthForm from '../components/AuthForm';
 import TodoList from '../components/TodoList';
-import LogoutButton from '../components/LogoutButton';
 
 export default function HomePage() {
   const dispatch = useDispatch<AppDispatch>();
-  const auth = useSelector((state: RootState) => state.auth);
-  const { isAuthenticated } = auth;
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -28,31 +27,30 @@ export default function HomePage() {
       loadTasks();
     }
   }, [isAuthenticated, dispatch]);
-1
-  return ( 
-    <div className="w-full min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl mx-auto">
-        {isAuthenticated ? (
-          <div className="animate-fadeIn">
-            <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                  Your Tasks
-                </h1>
-               
-              </div>
-              <LogoutButton />
+
+  // If the user is not authenticated, show the self-contained AuthForm page.
+  // The AuthForm component itself handles the centering and light background.
+  if (!isAuthenticated) {
+    return <AuthForm />;
+  }
+
+  // If authenticated, show the main application UI
+  return (
+    <div className="w-full min-h-screen bg-white text-foreground">
+     
+      <div className="flex">
+      
+        <main className="flex-1 p-8">
+          <div className="max-w-4xl mx-auto">
+            <header className="flex items-center justify-between mb-8">
+             
+           
             </header>
-            <main>
+            <div className="animate-fadeIn">
               <TodoList />
-            </main>
+            </div>
           </div>
-        ) : (
-         
-          <div className="w-full flex justify-center animate-fadeIn">
-            <AuthForm />
-          </div>
-        )}
+        </main>
       </div>
     </div>
   );
